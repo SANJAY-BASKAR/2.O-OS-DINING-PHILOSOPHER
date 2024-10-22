@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Booking System</title>
+    <style>
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: green;
+            margin: 5px;
+            display: inline-block;
+            cursor: pointer;
+            text-align: center;
+            line-height: 50px;
+            color: white;
+        }
+        .seat.locked {
+            background-color: orange;
+        }
+        .seat.booked {
+            background-color: red;
+        }
+        .confirm-button {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Seat Booking</h1>
+    <div id="seats"></div>
+    <button id="confirmBooking" class="confirm-button">Confirm Booking</button>
+    <button id="resetSeats">Reset All Seats</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let selectedSeatId = null;  // Keep track of the selected seat
+
+        const seatsContainer = document.getElementById('seats');
+        const confirmButton = document.getElementById('confirmBooking');
+        const resetButton = document.getElementById('resetSeats');
+
+        // Create 10 seats for demo purposes
+        for (let i = 1; i <= 10; i++) {
+            const seat = document.createElement('div');
+            seat.classList.add('seat');
+            seat.dataset.id = i;
+            seat.textContent = `Seat ${i}`;
+            seatsContainer.appendChild(seat);
+
+            seat.addEventListener('click', () => {
+                // When seat is clicked, send selection event
+                socket.emit('select seat', i);
+                selectedSeatId = i;  // Store the selected seat
+            });
+        }
+
+        // Listen for seat lock event
+        socket.on('seat locked', (seatId) => {
+            const seatElement = document.querySelector(`[data-id='${seatId}']`);
+            if (seatElement) {
+                seatElement.classList.add('locked');
+            }
+            if (seatId === selectedSeatId) {
+                // Show confirm booking button for the selected seat
+                confirmButton.style.display = 'inline-block';
+            }
+        });
+
+        // Handle confirm booking button click
+        confirmButton.addEventListener('click', () => {
+            if (selectedSeatId !== null) {
+                // Emit confirm booking event for the selected seat
+                socket.emit('confirm booking', selectedSeatId);
+                confirmButton.style.display = 'none';  // Hide the confirm button after clicking
+            }
+        });
+
+        // Listen for seat booking event
+        socket.on('seat booked', (seatId) => {
+            const seatElement = document.querySelector(`[data-id='${seatId}']`);
+            if (seatElement) {
+                seatElement.classList.remove('locked');
+                seatElement.classList.add('booked');
+            }
+        });
+
+        // Listen for seat unavailability event
+        socket.on('seat unavailable', (seatId) => {
+            alert(`Seat ${seatId} is unavailable!`);
+        });
+
+        // Reset all seats when the reset button is clicked
+        resetButton.addEventListener('click', () => {
+            socket.emit('reset seats');
+        });
+
+        // Listen for reset event
+        socket.on('seats reset', () => {
+            const seatElements = document.querySelectorAll('.seat');
+            seatElements.forEach(seat => {
+                seat.classList.remove('locked', 'booked');
+            });
+            confirmButton.style.display = 'none';  // Hide the confirm button
+            selectedSeatId = null;  // Reset the selected seat
+        });
+    </script>
+</body>
+</html>
