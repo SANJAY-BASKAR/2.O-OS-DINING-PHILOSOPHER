@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dining Philosophers Visualization</title>
+    <style>
+      body {
+        font-family: "algerian";
+        background-color: #f5f5f5;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        color: #333;
+        margin-top: 25px;
+        padding-top: 45px;
+        font-size: 2.5em;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      h1:hover {
+        color: red;
+        tranform: scale(1.2);
+        cursor:pointer;
+      }
+
+      .container {
+        position: relative;
+        height: 400px;
+        width: 400px;
+        margin: 0 auto;
+        border-radius: 50%;
+        margin-top: 15px;
+        background: aliceblue;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+      }
+
+      .philosopher {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 80px;
+        font-weight: bold;
+        font-size: 1.2em;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      .bowl {
+        position: absolute;
+        width: 40px;
+        height: 20px;
+        background-color: brown;
+        border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+      }
+
+      .bowl:before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        width: 20px;
+        height: 10px;
+        background-color: brown;
+        transform: translateX(-50%);
+        border-radius: 50%;
+      }
+
+      /* Colors for the philosophers based on state */
+      .eating {
+        background-color: #4caf50;
+        transform: scale(1.1);
+      }
+
+      .thinking {
+        background-color: #2196f3;
+      }
+
+      .hungry {
+        background-color: #f44336;
+      }
+
+      /* Positioning philosophers in a circle */
+      #philosopher-0 {
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+
+      #philosopher-1 {
+        top: 30%;
+        right: 10%;
+        transform: translate(0, -50%);
+      }
+
+      #philosopher-2 {
+        bottom: 30%;
+        right: 10%;
+        transform: translate(0, 50%);
+      }
+
+      #philosopher-3 {
+        bottom: 5%;
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+
+      #philosopher-4 {
+        bottom: 30%;
+        left: 10%;
+        transform: translate(0, 50%);
+      }
+
+      /* Positioning bowls between philosophers */
+      #bowl-0 {
+        top: 18%;
+        left: 75%;
+        transform: translate(-50%, 0);
+      }
+
+      #bowl-1 {
+        top: 55%;
+        right: 8%;
+        transform: translate(0, -50%);
+      }
+
+      #bowl-2 {
+        bottom: 55%;
+        right: 8%;
+        transform: translate(0, 50%);
+      }
+
+      #bowl-3 {
+        bottom: 18%;
+        left: 75%;
+        transform: translate(-50%, 0);
+      }
+
+      #bowl-4 {
+        bottom: 55%;
+        left: 8%;
+        transform: translate(0, 50%);
+      }
+
+      /* Bowl animations for resource usage */
+      .bowl-moving {
+        transform: translate(-20px, 10px);
+      }
+
+      /* Add some hover effects for interaction */
+      .philosopher:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .bowl:hover {
+        background-color: darkbrown;
+      }
+
+      /* Animation keyframes for philosopher state changes */
+      @keyframes philosopher-cycle {
+        0% {
+          background-color: #2196f3;
+        } /* thinking */
+        25% {
+          background-color: #f44336;
+        } /* hungry */
+        50% {
+          background-color: #4caf50;
+          transform: scale(1.1);
+        } /* eating */
+        75% {
+          background-color: #f44336;
+          transform: scale(1);
+        } /* hungry again */
+        100% {
+          background-color: #2196f3;
+        } /* back to thinking */
+      }
+
+      /* Apply animation to all philosophers */
+      .philosopher {
+        animation: philosopher-cycle 10s infinite;
+      }
+
+      .footer {
+        margin-top: 30px;
+        height: 250px;
+        width: 100%;
+        background: #B7E0FF;
+        margin-bottom: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 36;
+      }
+
+      .footer p {
+        font-size: 3em;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .body {
+        background: aliceblue;
+        z-index: -1;
+        display: flex;
+        flex-direction: column;
+        justify-content: spacing-between;
+        margin-bottom: -20px;
+
+      }
+
+      .header {
+        background: #B7E0FF;
+        margin-top: -20px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: bold;
+        font-weight: 700;
+
+      }
+
+      .header:hover {
+        transform: scale(1.05);
+      }
+
+      .description-container, .mainer {
+        width: 300px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+    }
+    
+    .description-container:hover, .mainer:hover {
+        transform: scale(1.05);
+    }
+    
+    .description-container h2, .mainer h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .description-container ul, .mainer ul {
+        list-style-type: disc;
+        padding-left: 20px;
+        color: #555;
+    }
+    
+    .description-container ul li, .mainer ul li {
+        margin-bottom: 10px;
+    }
+    
+    .description-container p, .mainer p {
+        color: red;
+        font-size: 16px;
+    }
+    
+
+      .main2{
+        margin-right: 650px;
+
+      }
+
+</style>
+
+    </style>
+  </head>
+  <body>
+    <div class="body">
+      <div class="header"><h1>Dining Philosophers Problem</h1></div>
+
+      <div class="container">
+        <div class="main1">
+        <div class="philosopher thinking" id="philosopher-0">P0</div>
+        <div class="bowl" id="bowl-0"></div>
+        <div class="philosopher eating" id="philosopher-1">P1</div>
+        <div class="bowl" id="bowl-1"></div>
+        <div class="philosopher hungry" id="philosopher-2">P2</div>
+        <div class="bowl" id="bowl-2"></div>
+        <div class="philosopher thinking" id="philosopher-3">P3</div>
+        <div class="bowl" id="bowl-3"></div>
+        <div class="philosopher eating" id="philosopher-4">P4</div>
+        <div class="bowl" id="bowl-4"></div>
+        </div>
+        <div class="main2">
+          <div class="description-container">
+            <h2>Dining Philosophers Problem</h2>
+            <ul>
+                <li>Five philosophers sit around a table.</li>
+                <li>Each philosopher alternates between eating and thinking.</li>
+                <li>A philosopher must pick up two forks (left and right) to eat.</li>
+                <li>Only one fork can be picked up at a time.</li>
+                <li>Philosophers will suffer deadlock and starvation.</li>
+            </ul>
+            <p>This problem illustrates the challenges of resource sharing and concurrency in systems.</p>
+          </div>
+        </div>
+        <div class="main3">
+          <div class="mainer">
+            <h2>TABLE ON LEFT </h2>
+            <ul>
+                <li><strong>HAT</strong> - represents the <strong>CONSUMPTION</strong></li>
+                <li>Movement shows <strong>DEADLOCK...........</strong> </li>
+                <li>No one are abled to ultilise the hat......</li>
+                <li><p>This problem focuses on the ::::::::::::::</p></li>
+            </ul>
+            <p><strong>RESOURCE MANAGEMENT</strong></p>
+         </div>
+        </div>
+      </div>
+      <div class="footer">
+        <p>OS ASSIGNMENT</p>
+      </div>
+    </div>
+    <script>
+      // Simulate resource usage by moving the bowl for eating animation
+      function animateBowls() {
+        const bowls = document.querySelectorAll(".bowl");
+
+        bowls.forEach((bowl, index) => {
+          setTimeout(() => {
+            bowl.classList.add("bowl-moving");
+          }, 3000 * index); // stagger the bowl movement
+        });
+
+        setTimeout(() => {
+          bowls.forEach((bowl) => bowl.classList.remove("bowl-moving"));
+        }, 15000); // reset after 15 seconds (entire animation cycle)
+      }
+
+      setInterval(animateBowls, 10000); // every 10s simulate bowl movements
+    </script>
+  </body>
+</html>
