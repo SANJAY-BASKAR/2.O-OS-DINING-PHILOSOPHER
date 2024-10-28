@@ -4,36 +4,312 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seat Booking System</title>
+    <style href ="./styles.css" rel ="stylesheet"></style>
     <style>
+        * {
+        
+            margin: 0;
+            
+        }
+        body {
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: hidden;
+        }
+        
         .seat {
-            width: 50px;
-            height: 50px;
-            background-color: green;
+            width: 50px; /* Width of the chair */
+            height: 50px; /* Height of the chair */
+            background: linear-gradient(to bottom, #ec9696, #f45351);
             margin: 5px;
+            padding: 5px;
             display: inline-block;
             cursor: pointer;
             text-align: center;
             line-height: 50px;
+            border-radius: 10px 10px 5px 5px; /* Rounded top corners for chair effect */
             color: white;
+            transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; /* Smooth transition for hover effects */
+            position: relative; /* Allow positioning of pseudo-elements */
         }
+        
+        /* Create the backrest of the chair */
+        .seat:before {
+            content: '';
+            position: absolute;
+            top: -15px; /* Position the backrest */
+            left: 10px; /* Center the backrest */
+            width: 40px; /* Width of the backrest */
+            height: 15px; /* Height of the backrest */
+            background: linear-gradient(to right, #d6b2b2, #ea6262);
+            border-radius: 10px; /* Round the backrest */
+        }
+        
+        /* Hover effects */
+        .seat:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to bottom, #d6b2b2, #e7881c);
+        }
+
+        .seat:hover:before {
+            transform: scale(1.05);
+            background: linear-gradient(to bottom, #d6b2b2, #e7881c);
+        }
+        
+        /* Locked chair style */
         .seat.locked {
-            background-color: orange;
+            background: linear-gradient(to bottom, #e4f0b5, #706b35);
         }
+        .seat.locked:before {
+            background: linear-gradient(to bottom, #e4f0b5, #706b35);
+        }
+        
+        /* Booked chair style */
         .seat.booked {
-            background-color: red;
+            background: linear-gradient(to bottom, #c1efbf, #3f8e4b);
         }
+        .seat.booked:before {
+            background: linear-gradient(to bottom, #c1efbf, #3f8e4b);
+        }
+        
         .confirm-button {
             display: none;
             margin-top: 10px;
         }
+        .main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-direction: column;
+            height: 600px;
+            width: 1600px;
+            overflow-x: hidden;
+            
+            
+            background-color: rgb(255, 200, 200); 
+            
+
+        }
+        .head {
+            display: flex; /* Flexbox behavior */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 0;
+            width: 100%; /* Ensure the element takes the full width */
+            height: 150px;
+            background-color: rgb(255, 88, 88);
+        }
+        
+        button {
+            padding: 10px;
+            border-radius: 100px;
+            background-color: rgb(255, 88, 88);
+            border: none;
+            transition: transform 0.25s ease-in-out;
+            font-size:larger;
+
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: rgb(249, 160, 160);
+
+        }
+
+        button:active {
+            transform: scale(1);
+            background-color: rgb(157, 220, 134);
+
+        }
+
+        h1 {
+            background-color: rgb(249, 160, 160);
+            font-size:xx-large;
+            transition: color 0.5s ease, transform 0.5s ease;
+            margin-bottom: 10px;
+            border-radius: 100px;
+            padding: 10px;
+        }
+
+        h1:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+
+        
+        a {
+            background-color: transparent;
+            text-decoration: none; /* Removes the underline from the anchor tag */
+            color: white; /* You can set the text color as needed */
+            padding: 5px 10px; /* Optional: Add padding to make the link more visible */
+            border-radius: 5px; /* Optional: Add rounded corners */
+            transition: transform 0.5s ease;
+
+        }
+
+        a:hover {
+            transform: scale(1.05);
+        }
+        
+
+        
+        
+       /* @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        } */
+
+        .scrolling-text {
+            width: 100%; /* Full width */
+            overflow: hidden;
+            white-space: nowrap; /* Prevents text from wrapping */
+            background-color: transparent;
+            z-index: 1000;
+            margin-left: 400px;
+        }
+        
+        .scrolling-text h2 {
+            /* display: inline-block; /* Make h2 an inline block element */
+            /* animation:  scroll-left 10s linear infinite; /* Added jumping animation */
+            padding: 10px; /* Add padding */    
+            background-color: rgb(249, 160, 160); /* Optional: Set a background to make border and padding more visible */
+            /* box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); /* Adds a shadow around the element */ 
+            z-index: 1000;
+            border-radius: 100px;
+            
+        }
+        
+        /* Scrolling animation */
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        
+        /* Jumping animation */
+        @keyframes jump {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0); /* Original position */
+            }
+            40% {
+                transform: translateY(-8px); /* Jump up */
+            }
+            60% {
+                transform: translateY(-5px); /* Slightly lower */
+            }
+        }
+        
+
+          .button-container {
+            display: flex;
+            justify-content: space-evenly; /* Distribute buttons horizontally */
+            align-items: center;
+            width: 100%; /* Ensure full width */
+            margin-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        footer {
+            height: 200px;
+            background-color: rgb(255, 88, 88);
+            width: 1600px;
+        }
+
+        .floating-circle {
+            width: 1000px; /* Diameter of the circle */
+            height: 1000px; /* Diameter of the circle */
+            background-color: rgb(255, 88, 88); /* Circle color */
+            border-radius: 50%; /* Make it a circle */
+            position: absolute; /* Allow positioning */
+            animation: float 3s ease-in-out infinite; /* Floating animation */
+            z-index: 0;
+            border: 1px solid white;
+            
+            /* Combine transformations into one transform property */
+            transform: translateX(-500px) translateY(-500px); 
+        }
+
+        .floating-circle1 {
+            width: 1000px; /* Diameter of the circle */
+            height: 1000px; /* Diameter of the circle */
+            background-color: rgb(255, 88, 88); /* Circle color */
+            border-radius: 50%; /* Make it a circle */
+            position: absolute; /* Allow positioning */
+            animation: float 3s ease-in-out infinite; /* Floating animation */
+            z-index: 0;
+            border: 1px solid white;
+            transform: translateX(1150px) translateY(300px); 
+        }
+        .floating-circle2 {
+            width: 1000px; /* Diameter of the circle */
+            height: 1000px; /* Diameter of the circle */
+            background-color: rgb(243, 163, 163); /* Circle color */
+            border-radius: 50%; /* Make it a circle */
+            position: absolute; /* Allow positioning */
+            animation: float 3s ease-in-out infinite; /* Floating animation */
+            z-index: 0;
+            border: 1px solid white;
+            transform: translateX(1200px) translateY(350px); 
+        }
+        .floating-text {
+            position: absolute; /* Position it absolutely */
+            white-space: nowrap; /* Prevent text from wrapping */
+            font-size: 24px; /* Adjust font size as needed */
+            color: #fff; /* Text color */
+            z-index: 10000;
+            transform: translateX(-80px) translateY(180px); 
+        }
+
+        pre {
+            z-index: 100000;
+            
+        }
+        
+
     </style>
 </head>
 <body>
-    <h1>Seat Booking</h1>
-    <h2><a href="./illustration.html">Dining philosopher illustration</a></h2>
-    <div id="seats"></div>
-    <button id="confirmBooking" class="confirm-button">Confirm Booking</button>
-    <button id="resetSeats">Reset All Seats</button>
+    <div class="floating-circle"></div>
+    <div class="floating-circle1"></div>
+    <div class="floating-circle2"></div>
+    <div class="floating-text">
+        <Pre>
+            Done By
+                -> SANJAY
+                -> SAM
+                -> RAKSHITH
+        </Pre>
+    </div>
+    
+    <div class="main">
+        <div class="head">
+            <div class="booking-text"><h1>Seat Booking</h1></div>
+            <div class="scrolling-text">
+                <h2><a href="./illustration.html">Dining Philosopher Illustration</a></h2>
+            </div>
+        </div>
+    
+        <div id="seats"></div>
+    
+        <!-- Flex container for buttons -->
+        <div class="button-container">
+            <button id="confirmBooking" class="confirm-button">Confirm Booking</button>
+            <button id="resetSeats">Reset All Seats</button>
+        </div>
+    </div>
+    <Footer>
+        
+    </Footer>
+
+    <!--     ------------------------------------------------------------------     -->
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -49,7 +325,7 @@
             const seat = document.createElement('div');
             seat.classList.add('seat');
             seat.dataset.id = i;
-            seat.textContent = `Seat ${i}`;
+            seat.textContent = `S ${i}`;
             seatsContainer.appendChild(seat);
 
             seat.addEventListener('click', () => {
